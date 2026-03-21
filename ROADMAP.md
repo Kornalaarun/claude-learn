@@ -12,10 +12,10 @@ This roadmap is grounded in learning science, not feature brainstorming. Every p
 |---|---|---|---|
 | 1-on-1 tutoring with mastery learning | Bloom (1984), VanLehn (2011) | d=0.79 | Partially implemented |
 | Mastery gates (don't advance with gaps) | Kulik et al. (1990), Khan Academy | d=0.52-0.94 | Implemented |
-| Spaced retrieval practice | Ebbinghaus (1885), Dunlosky (2013) | High utility | **Not implemented** |
-| Desirable difficulties (interleaving, generation) | Bjork (1994) | Robust, varies | **Not implemented** |
-| Scaffolding at the ZPD boundary | Vygotsky (1978), Wood/Bruner (1976) | Core mechanism | Partially implemented |
-| Metacognitive prompting | EEF meta-analysis | +7 months progress | **Not implemented** |
+| Spaced retrieval practice | Ebbinghaus (1885), Dunlosky (2013) | High utility | Implemented (v0.2) |
+| Desirable difficulties (interleaving, generation) | Bjork (1994) | Robust, varies | Generation implemented (v0.2); interleaving not yet |
+| Scaffolding at the ZPD boundary | Vygotsky (1978), Wood/Bruner (1976) | Core mechanism | Implemented (v0.2) |
+| Metacognitive prompting | EEF meta-analysis | +7 months progress | Implemented (v0.2) |
 | Student-as-teacher (protege effect) | Coleman et al. (1997), Feynman Technique | ~50% retention gain | Partially implemented |
 | Guardrails against over-reliance | Bastani et al. (2024) | Negative without | Implemented |
 | Engagement sustainability | Stanford CEPA (2025) | 60% drop at 3 weeks | **Not addressed** |
@@ -43,11 +43,13 @@ What exists today:
 
 ---
 
-## Phase 1: Depth of Learning (v0.2 — v0.4)
+## Phase 1: Depth of Learning (v0.2 — v0.4) ✅
 
 *Theme: Make learning stick, not just feel good in the moment.*
 
-### 1.1 Spaced Retrieval Engine
+**Completed 2026-03-21.** All four features implemented as SKILL.md prompt changes (no infrastructure needed).
+
+### 1.1 Spaced Retrieval Engine ✅
 
 **Research basis:** Dunlosky et al. (2013) rated practice testing and distributed practice as the *only* two "high utility" learning strategies out of 10 studied. Roediger & Karpicke (2006) showed retrieval practice produces ~50% better retention after one week vs. re-studying. Andy Matuschak's Mnemonic Medium proved that spaced repetition builds *conceptual understanding*, not just rote recall, when prompts target connections and implications.
 
@@ -61,7 +63,9 @@ What exists today:
 
 **Success metric:** Learner can recall and apply concepts from 4+ weeks ago without re-teaching.
 
-### 1.2 Generation Before Explanation
+**Implemented:** Step 2b (spaced review at session start), retrieval prompt generation after mastery in Step 5, `review-schedule.json` with expanding intervals (1d→3d→7d→14d→30d), durable/retired status tracking.
+
+### 1.2 Generation Before Explanation ✅
 
 **Research basis:** Bjork's generation effect — self-generated information is more durable than passively received information. "Make It Stick" calls this the most underused learning principle. Ericsson's deliberate practice research shows that struggling with a problem before seeing the solution builds stronger mental representations.
 
@@ -73,7 +77,9 @@ What exists today:
 
 **Success metric:** Learners who generate-then-learn retain more than learners who just receive explanations (measurable via spaced review accuracy).
 
-### 1.3 Progressive Scaffolding (Wood/Bruner's 6 Functions)
+**Implemented:** Step 4 now asks learners to predict/attempt before explanation, connects teaching to their prediction, handles "I have no idea" with reframing.
+
+### 1.3 Progressive Scaffolding (Wood/Bruner's 6 Functions) ✅
 
 **Research basis:** Wood, Bruner & Ross (1976) identified six scaffolding functions that effective tutors use. Currently the skill has binary mastery probing — the learner either gets it or doesn't. Real tutoring uses a graduated hint system.
 
@@ -89,7 +95,9 @@ What exists today:
 
 **Success metric:** Learners need decreasing scaffolding levels over time for comparable difficulty topics.
 
-### 1.4 Metacognitive Prompting
+**Implemented:** 5-level hint ladder (Nudge→Narrow→Highlight→Worked Example→Direct Re-teach) replaces flat re-explain. Scaffolding level tracked in progress.json notes. Fading implemented — less scaffolding expected as sessions progress.
+
+### 1.4 Metacognitive Prompting ✅
 
 **Research basis:** EEF meta-analysis rates metacognition as producing +7 months of additional progress. Expert learners differ from novices primarily in their ability to monitor their own understanding. Novices have poor calibration — they don't know what they don't know.
 
@@ -102,6 +110,8 @@ What exists today:
 - Every 5 sessions, prompt a **learning reflection**: "What's the most important thing you've learned? What's still fuzzy? What would you teach differently now?"
 
 **Success metric:** Calibration accuracy improves over time (confidence predicts performance).
+
+**Implemented:** Metacognitive activation before teaching ("What do you already know?"), confidence calibration checks during probing (1-5 scale), `calibration_history` in learner-profile.json with overconfident/underconfident/well_calibrated patterns, Step 8b learning reflection every 5 sessions.
 
 ---
 
@@ -255,9 +265,9 @@ Bloom asked: can we find group instruction methods as effective as 1-on-1 tutori
 
 - Personalized pacing (Phase 0 ✅)
 - Mastery gating (Phase 0 ✅)
-- Spaced retrieval (Phase 1)
-- Desirable difficulties (Phase 2)
-- Metacognitive coaching (Phase 1)
+- Spaced retrieval (Phase 1 ✅)
+- Desirable difficulties (Phase 1 generation ✅, Phase 2 interleaving)
+- Metacognitive coaching (Phase 1 ✅)
 - Connection to real work (Phase 2)
 - Social accountability (Phase 3)
 
@@ -276,10 +286,10 @@ When choosing what to build next, score each feature on:
 
 | Feature | Effect Size | Retention | Complexity | Uniqueness | Priority |
 |---|---|---|---|---|---|
-| Spaced retrieval engine | ★★★★★ | ★★★★★ | ★★★☆☆ | ★★★☆☆ | **P0** |
-| Generation before explanation | ★★★★☆ | ★★★☆☆ | ★★☆☆☆ | ★★★★☆ | **P0** |
-| Metacognitive prompting | ★★★★☆ | ★★★☆☆ | ★★☆☆☆ | ★★★★★ | **P0** |
-| Progressive scaffolding | ★★★★☆ | ★★★☆☆ | ★★★☆☆ | ★★★★☆ | **P1** |
+| Spaced retrieval engine | ★★★★★ | ★★★★★ | ★★★☆☆ | ★★★☆☆ | ✅ Done |
+| Generation before explanation | ★★★★☆ | ★★★☆☆ | ★★☆☆☆ | ★★★★☆ | ✅ Done |
+| Metacognitive prompting | ★★★★☆ | ★★★☆☆ | ★★☆☆☆ | ★★★★★ | ✅ Done |
+| Progressive scaffolding | ★★★★☆ | ★★★☆☆ | ★★★☆☆ | ★★★★☆ | ✅ Done |
 | Interleaving | ★★★★☆ | ★★★★☆ | ★★★☆☆ | ★★★☆☆ | **P1** |
 | Connect to real work | ★★★☆☆ | ★★★★★ | ★★★★☆ | ★★★★★ | **P1** |
 | Deliberate practice engine | ★★★★★ | ★★★★☆ | ★★★★☆ | ★★★★☆ | **P1** |
