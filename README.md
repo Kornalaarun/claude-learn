@@ -71,8 +71,8 @@ The installer will:
 Open Claude Code and:
 
 ```
-/learn new          # Start a new learning goal
-/learn              # Resume where you left off
+/learn              # Resume your active goal (shows other goals if you have multiple)
+/learn new          # Start a new learning goal (existing goals are preserved)
 /learn status       # See your progress (streak, forgetting forecast, weak spots)
 /learn plan         # View/discuss your curriculum
 /learn list         # List all learning goals with progress bars
@@ -110,6 +110,16 @@ The tutor builds a model of how you learn best over time:
 - Learning streak and milestones
 
 All state is stored locally in `~/.claude/learning/`.
+
+### Multiple goals
+
+You can study multiple subjects at once. When you run `/learn`, it resumes your most recent goal and reminds you about your others:
+
+```
+Resuming Go (Golang). [You also have: LLMs & AI Agents — /learn switch llms-and-ai-agents]
+```
+
+Starting a new goal with `/learn new` never overwrites existing ones — it just sets the new goal as active. Spaced reviews pull from all your goals, so you stay sharp on everything.
 
 ## Uninstall
 
