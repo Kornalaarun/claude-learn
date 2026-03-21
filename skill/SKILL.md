@@ -122,8 +122,11 @@ The learner can have multiple active goals simultaneously. All commands that acc
 
 ### Resume (`/learn` or `/learn <goal-name>`)
 
-- If no argument: resume the `active_goal` from `goals.json`
 - If a goal name is given: set that as `active_goal`, then resume it
+- If no argument: resume the `active_goal` from `goals.json`, but **always show a one-liner about other goals** if the learner has 2+:
+  - *"Resuming Go (Golang). [You also have: LLMs & AI Agents — `/learn switch llms-and-ai-agents`]"*
+  - Keep it to one line — don't list full progress, just goal names and slugs
+  - This ensures the learner always knows their other goals exist without extra commands
 - If `active_goal` is not set or invalid, list available goals and ask the learner to pick one
 
 ## Teaching Session Flow
