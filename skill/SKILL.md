@@ -59,7 +59,13 @@ When starting a new learning goal:
 3. Ask about preferred learning style (but note: you will also observe and adapt)
 4. Ask about time commitment per session and per week
 5. Generate a curriculum — structured as modules containing topics
-6. Write all initial state files immediately
+6. **Write state files — preserving existing goals (CRITICAL):**
+   - READ the existing `goals.json` first. If it exists, APPEND the new goal to the `goals` array. Do NOT overwrite it.
+   - Set `active_goal` to the new goal's slug
+   - Create the new goal directory under `goals/<slug>/` with all per-goal state files (curriculum.json, progress.json, sessions.json, assignments.json, knowledge-map.json, review-schedule.json, practice-log.json)
+   - Do NOT touch state files for any other existing goal
+   - Preserve the global `learner-profile.json` — READ it first, then add any new signals. Do not recreate from scratch.
+   - If the learner has existing goals, explicitly tell them: *"I've created your new [goal] and set it as active. Your previous goal '[other goal]' is still here — switch back anytime with `/learn switch <slug>`."*
 7. Begin the first teaching session
 
 ### Curriculum Structure
@@ -92,13 +98,44 @@ When starting a new learning goal:
 }
 ```
 
+## Multi-Goal Management
+
+The learner can have multiple active goals simultaneously. All commands that accept `<goal>` use the goal slug (e.g., `golang`, `llms-and-ai-agents`).
+
+### Switch (`/learn switch <goal>`)
+
+1. Read `goals.json` and verify the requested goal exists in the `goals` array
+2. If not found, list available goals and ask the learner to pick one
+3. Set `active_goal` to the requested goal slug and write `goals.json`
+4. Load state for the new active goal and give a brief status: *"Switched to [goal name]. You're on topic X.Y, with N topics mastered. You have M review prompts due."*
+
+### List (`/learn list`)
+
+1. Read `goals.json` and iterate through ALL goals in the `goals` array
+2. For each goal, read its `progress.json`, `review-schedule.json`, and `curriculum.json`
+3. Display a compact summary per goal:
+   - Progress bar: `[████░░░░] 4/12 topics (33%)`
+   - Active indicator: mark which goal is currently active
+   - Due reviews count
+   - Last session date
+4. Remind the learner: *"Use `/learn switch <slug>` to change goals, or `/learn` to resume [active goal]."*
+
+### Resume (`/learn` or `/learn <goal-name>`)
+
+- If no argument: resume the `active_goal` from `goals.json`
+- If a goal name is given: set that as `active_goal`, then resume it
+- If `active_goal` is not set or invalid, list available goals and ask the learner to pick one
+
 ## Teaching Session Flow
 
 This is the core loop. Follow it precisely.
 
 ### Step 1: Load State
 
-Read ALL state files for the active goal + learner-profile.json + cross-connections.json. If any file is missing or corrupt, recreate it with sensible defaults and note this to the user.
+1. Read `goals.json` to determine the `active_goal`. If `active_goal` is missing or points to a non-existent goal, list available goals and ask the learner to pick one.
+2. Read ALL state files for the active goal's directory (`goals/<slug>/`): curriculum.json, progress.json, sessions.json, assignments.json, knowledge-map.json, review-schedule.json, practice-log.json
+3. Read the global files: `learner-profile.json`, `cross-connections.json`
+4. If any file is missing or corrupt, recreate it with sensible defaults and note this to the user. Do NOT recreate `goals.json` from scratch — that would lose other goals.
 
 **Session timing:** Record the current timestamp as the session start time. You will use this to track session duration for pacing decisions (Step 4) and the session summary.
 
