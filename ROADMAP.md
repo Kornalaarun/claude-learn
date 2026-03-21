@@ -13,12 +13,12 @@ This roadmap is grounded in learning science, not feature brainstorming. Every p
 | 1-on-1 tutoring with mastery learning | Bloom (1984), VanLehn (2011) | d=0.79 | Partially implemented |
 | Mastery gates (don't advance with gaps) | Kulik et al. (1990), Khan Academy | d=0.52-0.94 | Implemented |
 | Spaced retrieval practice | Ebbinghaus (1885), Dunlosky (2013) | High utility | Implemented (v0.2) |
-| Desirable difficulties (interleaving, generation) | Bjork (1994) | Robust, varies | Generation implemented (v0.2); interleaving not yet |
+| Desirable difficulties (interleaving, generation) | Bjork (1994) | Robust, varies | Implemented (v0.3) |
 | Scaffolding at the ZPD boundary | Vygotsky (1978), Wood/Bruner (1976) | Core mechanism | Implemented (v0.2) |
 | Metacognitive prompting | EEF meta-analysis | +7 months progress | Implemented (v0.2) |
 | Student-as-teacher (protege effect) | Coleman et al. (1997), Feynman Technique | ~50% retention gain | Partially implemented |
 | Guardrails against over-reliance | Bastani et al. (2024) | Negative without | Implemented |
-| Engagement sustainability | Stanford CEPA (2025) | 60% drop at 3 weeks | **Not addressed** |
+| Engagement sustainability | Stanford CEPA (2025) | 60% drop at 3 weeks | Partially addressed (streaks, milestones, pacing) |
 
 **The biggest gaps are spaced repetition, desirable difficulties, metacognition, and engagement retention.** These are the highest-leverage improvements available.
 
@@ -115,11 +115,13 @@ What exists today:
 
 ---
 
-## Phase 2: Retention & Transfer (v0.5 — v0.8)
+## Phase 2: Retention & Transfer (v0.5 — v0.8) ✅
 
 *Theme: Learning that transfers to real work, not just session performance.*
 
-### 2.1 Interleaving and Desirable Difficulties
+**Completed 2026-03-21.** All four features implemented as SKILL.md prompt changes.
+
+### 2.1 Interleaving and Desirable Difficulties ✅
 
 **Research basis:** Bjork's research shows interleaving different problem types during practice produces superior long-term retention and transfer vs. blocked practice — even though it *feels* harder and learners rate it as less effective. Epstein ("Range") shows breadth of training predicts breadth of transfer.
 
@@ -132,7 +134,9 @@ What exists today:
 
 **Success metric:** Performance on novel/transfer problems (not just recall of taught examples).
 
-### 2.2 Deliberate Practice Engine
+**Implemented:** Cross-goal and cross-topic interleaving in Step 2b (spaced review shuffles prompts from different topics/goals), context variation on repeat prompts, interleaving during teaching in Step 4, cross-topic probing in Step 5, transparency messaging with one-time explanation tracked in learner-profile.json.
+
+### 2.2 Deliberate Practice Engine ✅
 
 **Research basis:** Ericsson's research ("Peak") shows expert performance comes from practice that is: (1) at the edge of current ability, (2) focused on specific weaknesses, (3) accompanied by immediate feedback. Young ("Ultralearning") adds: identify the weakest sub-skill and drill it specifically.
 
@@ -145,7 +149,9 @@ What exists today:
 
 **Success metric:** Targeted weak sub-skills improve to "strong" within 2-3 focused practice sessions.
 
-### 2.3 Connect to Real Work (Directness)
+**Implemented:** Step 5c Deliberate Practice Engine — sub-skill analysis in knowledge-map.json, targeted practice generation, `/learn practice` command, practice-log.json tracking, automatic offer when 2+ weak sub-skills detected.
+
+### 2.3 Connect to Real Work (Directness) ✅ (basic)
 
 **Research basis:** Young's "directness" principle — learning is most effective when done in the context where the skill will actually be used. For software engineers, that means connecting to actual code, actual systems, actual problems.
 
@@ -157,7 +163,9 @@ What exists today:
 
 **Success metric:** Learner applies concepts from `/learn` sessions in their actual work without prompting.
 
-### 2.4 Session Pacing & Diffuse Mode Support
+**Implemented (basic):** Teaching approach in Step 4 now references learner's real projects via Read/Glob/Grep tools, homework in Step 7 prefers real-codebase assignments, review prompts connect to real code when possible. **Not yet implemented:** Auto-detection when regular Claude Code usage relates to a learning goal (requires hooks/integration beyond prompt changes).
+
+### 2.4 Session Pacing & Diffuse Mode Support ✅
 
 **Research basis:** Oakley ("A Mind for Numbers") shows the brain has focused and diffuse modes. Marathon study sessions produce diminishing returns. The Pomodoro Technique (25 min focused, 5 min break) leverages both modes. Stepping away from a stuck problem often triggers breakthroughs via the diffuse mode.
 
@@ -169,6 +177,8 @@ What exists today:
 
 **Success metric:** Learners report "aha" moments between sessions. Previously-stuck problems resolve more quickly in subsequent sessions.
 
+**Implemented:** Session timing tracking, pacing rules at 25-30/45/60 minute marks in Step 4, parked problems for diffuse mode processing with automatic revisit next session.
+
 ---
 
 ## Phase 3: Community & Engagement (v0.9 — v1.2)
@@ -179,7 +189,7 @@ What exists today:
 
 **Research basis:** Stanford CEPA (2025) found student engagement with AI tutors drops 60% after 3 weeks without teacher facilitation. Khanmigo sees significant results only with 30+ min/week sustained usage. The biggest risk to this product isn't bad pedagogy — it's abandonment.
 
-### 3.2 Learning Streaks & Progress Visibility
+### 3.2 Learning Streaks & Progress Visibility ✅ (core)
 
 **What to build:**
 - Visible streak counter (sessions per week, weekly goals)
@@ -188,7 +198,9 @@ What exists today:
 - Weekly summary email alongside the daily reading: "This week you mastered 2 topics, reviewed 5, and your longest streak is 8 sessions"
 - Milestone celebrations that are *genuine*, not participation trophies — "You just demonstrated you can reason about edge cases in Go's type system. That's a real skill most Go developers take months to develop."
 
-### 3.3 Shareable Curricula & Community Library
+**Implemented:** Streak tracking in learner-profile.json (current/longest/weekly), milestone detection and genuine celebration, enhanced `/learn status` with progress bar + streak + forgetting forecast + weak spots + calibration summary, forgetting forecast in session summaries. **Not yet implemented:** Weekly summary email (requires code changes to the email system).
+
+### 3.3 Shareable Curricula & Community Library ✅ (basic export/import)
 
 **What to build:**
 - `export` and `import` already exist in the command routing but aren't implemented
@@ -197,6 +209,8 @@ What exists today:
 - "Fork" a curriculum — start from someone else's structure, customize to your background
 - Curriculum ratings — which paths have the highest completion rates and mastery scores?
 - This creates a network effect: every learner who completes a curriculum makes it better for the next one
+
+**Implemented:** `/learn export` writes shareable curriculum JSON (privacy-safe — no session/profile data), `/learn import` reads and validates curriculum files with option to customize before starting. **Not yet implemented:** Community library, fork/ratings, network effects (requires infrastructure beyond a CLI skill).
 
 ### 3.4 Study Groups (Protege Effect at Scale)
 
@@ -266,9 +280,9 @@ Bloom asked: can we find group instruction methods as effective as 1-on-1 tutori
 - Personalized pacing (Phase 0 ✅)
 - Mastery gating (Phase 0 ✅)
 - Spaced retrieval (Phase 1 ✅)
-- Desirable difficulties (Phase 1 generation ✅, Phase 2 interleaving)
+- Desirable difficulties (Phase 1 generation ✅, Phase 2 interleaving ✅)
 - Metacognitive coaching (Phase 1 ✅)
-- Connection to real work (Phase 2)
+- Connection to real work (Phase 2 ✅ basic)
 - Social accountability (Phase 3)
 
 Stacked together, these are the conditions under which Bloom's students achieved 2 sigma. No single intervention does it. The combination might.
@@ -290,12 +304,12 @@ When choosing what to build next, score each feature on:
 | Generation before explanation | ★★★★☆ | ★★★☆☆ | ★★☆☆☆ | ★★★★☆ | ✅ Done |
 | Metacognitive prompting | ★★★★☆ | ★★★☆☆ | ★★☆☆☆ | ★★★★★ | ✅ Done |
 | Progressive scaffolding | ★★★★☆ | ★★★☆☆ | ★★★☆☆ | ★★★★☆ | ✅ Done |
-| Interleaving | ★★★★☆ | ★★★★☆ | ★★★☆☆ | ★★★☆☆ | **P1** |
-| Connect to real work | ★★★☆☆ | ★★★★★ | ★★★★☆ | ★★★★★ | **P1** |
-| Deliberate practice engine | ★★★★★ | ★★★★☆ | ★★★★☆ | ★★★★☆ | **P1** |
-| Streaks & progress visibility | ★★☆☆☆ | ★★★★★ | ★★☆☆☆ | ★☆☆☆☆ | **P2** |
-| Session pacing / diffuse mode | ★★★☆☆ | ★★★☆☆ | ★☆☆☆☆ | ★★★☆☆ | **P2** |
-| Shareable curricula | ★☆☆☆☆ | ★★★★☆ | ★★★☆☆ | ★★☆☆☆ | **P2** |
+| Interleaving | ★★★★☆ | ★★★★☆ | ★★★☆☆ | ★★★☆☆ | ✅ Done |
+| Connect to real work | ★★★☆☆ | ★★★★★ | ★★★★☆ | ★★★★★ | ✅ Basic |
+| Deliberate practice engine | ★★★★★ | ★★★★☆ | ★★★★☆ | ★★★★☆ | ✅ Done |
+| Streaks & progress visibility | ★★☆☆☆ | ★★★★★ | ★★☆☆☆ | ★☆☆☆☆ | ✅ Core |
+| Session pacing / diffuse mode | ★★★☆☆ | ★★★☆☆ | ★☆☆☆☆ | ★★★☆☆ | ✅ Done |
+| Shareable curricula | ★☆☆☆☆ | ★★★★☆ | ★★★☆☆ | ★★☆☆☆ | ✅ Basic |
 | Study groups | ★★★★☆ | ★★★★★ | ★★★★★ | ★★★★☆ | **P3** |
 | Voice interaction | ★★★☆☆ | ★★★★☆ | ★★★★★ | ★★★☆☆ | **P3** |
 
