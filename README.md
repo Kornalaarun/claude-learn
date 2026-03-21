@@ -16,10 +16,94 @@ A personal learning assistant for [Claude Code](https://claude.com/claude-code).
 
 **Daily email** (optional) — get a curated reading/watching recommendation each morning based on your current position in the curriculum. Powered by Claude + [Resend](https://resend.com).
 
+## Demo
+
+Here's what a `/learn` session looks like — onboarding a new goal and the first teaching exchange:
+
+<video src="demo.mp4" autoplay loop muted playsinline width="100%"></video>
+
+<details>
+<summary>Full transcript (text version)</summary>
+
+```
+> /learn new
+
+What would you like to learn?
+
+> Go / Golang — I want to be productive in it for backend services
+
+Nice. What's your current experience with Go?
+
+> Zero Go. But I've written a lot of Java and Python, 8 years of backend work
+
+Got it — you'll pick up the syntax fast, so we can skip "what is a variable" and focus
+on what makes Go different from what you already know. How much time can you give this
+per session, and roughly how many sessions per week?
+
+> 30 min sessions, maybe 3-4x a week
+
+Here's your curriculum:
+
+ Module 1: Go Fundamentals (through the lens of Java/Python)
+   1.1  Workspace, modules, and the build system
+   1.2  Type system — static typing without the Java ceremony
+   1.3  Structs, methods, and interfaces (no classes, no inheritance)
+   1.4  Error handling — the Go way vs exceptions
+   1.5  Concurrency primitives — goroutines and channels
+
+ Module 2: Building Real Services
+   2.1  HTTP servers with net/http and routing
+   2.2  JSON, middleware, and request lifecycle
+   ...
+
+Let's start with 1.1 — Go's workspace and module system.
+
+Coming from Java, you're used to Maven/Gradle with pom.xml or build.gradle managing
+dependencies. Go's equivalent is the module system — but it's dramatically simpler.
+
+A Go module is just a directory with a `go.mod` file. It declares the module's import
+path and its dependencies. No XML, no DSL — just a flat text file:
+
+  module github.com/you/myservice
+
+  go 1.22
+
+  require (
+      github.com/gorilla/mux v1.8.1
+  )
+
+That's it. `go mod init github.com/you/myservice` creates it. `go mod tidy` resolves
+and cleans up dependencies automatically. No equivalent of `mvn dependency:tree` headaches.
+
+How's that land? If you think about your Java projects — what feels different so far?
+
+> That's way simpler than Maven. Where do dependencies actually get downloaded to though?
+  In Java it's ~/.m2/repository
+
+Good question. Go uses a module cache at ~/go/pkg/mod — similar idea to .m2 but with
+one key difference...
+```
+
+The tutor adapts to your background (skipping basics you already know), teaches in small chunks, and waits for your input before moving on. Every session picks up exactly where you left off.
+
+</details>
+
+## Why not just ask Claude to teach you?
+
+You can — but you'll lose context every conversation. `/learn` adds:
+
+- **Persistent memory** — your curriculum, progress, learner profile, and session history survive across conversations. Session 12 knows what happened in session 1.
+- **Mastery gating** — you can't just say "yeah I get it" and move on. The tutor probes at four levels (recall, application, edge cases, connections) before advancing.
+- **Adaptive pacing** — it calibrates over multiple sessions, not just one. If you breezed through topic 3, downstream topics get condensed. If you struggled, bridge topics get inserted.
+- **Homework loop** — it assigns work, then follows up next session. If you never do the reading but always do coding exercises, it adapts.
+- **Structure without rigidity** — the curriculum evolves based on your actual experience, not a fixed syllabus.
+
+Without `/learn`, every time you start a new Claude conversation, you're back to "I want to learn Go" with zero context. With it, you get continuity.
+
 ## Install
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/claude-learn.git
+git clone https://github.com/Kornalaarun/claude-learn.git
 cd claude-learn
 bash install.sh
 ```
