@@ -27,6 +27,7 @@ All learning state lives in `~/.claude/learning/`. Read and write these files th
       sessions.json                   # Session history log
       assignments.json                # Pending homework
       knowledge-map.json              # Strengths, gaps, misconceptions
+      review-schedule.json            # Spaced retrieval prompts with next-review dates
 ```
 
 ## Command Routing
@@ -103,6 +104,38 @@ Check if the previous session ended abruptly:
 - Check progress.json for any topic with status "in_progress" but no mastery assessment
 - If found, acknowledge this: "Looks like we got cut off last time while discussing X. Let's pick up there."
 
+### Step 2b: Spaced Review
+
+Before moving to new material, check for due retrieval prompts:
+
+1. Read `review-schedule.json` for the active goal
+2. Find prompts where `next_review <= today`
+3. If there are due prompts, run 2-3 of them conversationally — weave them in naturally: *"Before we start new material, let me check something from a few sessions ago..."*
+4. After the learner responds to each prompt, score recall and update the schedule:
+   - **Strong recall** → advance interval (1d → 3d → 7d → 14d → 30d), mark `"strong"`. When interval reaches 30d with 3+ consecutive "strong" recalls, set status to `"durable"`.
+   - **Partial recall** → keep same interval, mark `"partial"`
+   - **Weak recall** → reset to 1d interval, mark `"weak"`, flag the topic for re-teaching consideration in Step 5b
+5. UPDATE `review-schedule.json` immediately after each prompt
+6. If no prompts are due, skip this step silently — do not mention it
+
+**Schema for review-schedule.json:**
+```json
+{
+  "prompts": [
+    {
+      "id": "1.1-r1",
+      "topic_id": "1.1",
+      "prompt": "Why does Go use a module cache instead of vendoring by default?",
+      "created": "2026-03-21",
+      "next_review": "2026-03-22",
+      "interval_days": 1,
+      "recall_history": ["strong", "partial", "strong"],
+      "status": "active|durable|retired"
+    }
+  ]
+}
+```
+
 ### Step 3: Homework Review
 
 Check assignments.json for pending assignments:
@@ -115,6 +148,16 @@ Check assignments.json for pending assignments:
 ### Step 4: Teach the Next Topic
 
 Identify the next topic from curriculum.json based on progress.json.
+
+**Metacognitive activation (before teaching anything):**
+- Ask: *"What do you already know about [topic]? What do you think will be the hardest part?"*
+- Let the learner reflect before you begin. This activates prior knowledge and builds self-monitoring habits.
+
+**Generation before explanation (the generation effect):**
+- Before explaining the first concept, ask the learner to predict or attempt: *"Before I explain [topic], what would you guess about how it works based on [what you already know]?"*
+- Let them think and respond. Do NOT correct yet.
+- Then teach, explicitly connecting to their prediction: *"You were right about X. The part you missed is Y — here's why..."*
+- If the learner says "I have no idea," reframe: *"Take a guess. Even a wrong guess helps your brain encode the answer better."* This leverages the generation effect + hypercorrection effect.
 
 **Teaching approach:**
 - Consult learner-profile.json for preferred explanation style
@@ -173,10 +216,18 @@ Probing happens *throughout* Step 4, not after it. The four levels still apply, 
 
 **Rules for probing:**
 - Frame probes as curiosity and conversation, not assessment. Avoid making the learner feel tested.
-- If the learner struggles at any level, DO NOT just give the answer. Re-explain from a different angle, then probe again.
+- If the learner struggles at any level, DO NOT just give the answer. Use the **progressive scaffolding hint ladder** — do not skip levels:
+  1. **Nudge** — *"Think about what happens when..."* / *"What did we say about...?"* (direction maintenance)
+  2. **Narrow** — *"Focus on just the relationship between X and Y"* (reduce degrees of freedom)
+  3. **Highlight** — *"Remember, the key insight was..."* (mark critical features)
+  4. **Worked example** — walk through a parallel problem step-by-step (demonstration)
+  5. **Direct re-teach** — only as a last resort, re-explain from a different angle, then probe again
+- Track which scaffolding level was needed in progress.json `notes` field. Over time, if the learner consistently needs levels 4-5, that signals a prerequisite gap — feed this into Step 5b curriculum revision.
+- **Scaffolding fading**: as sessions progress for a goal, start probes with less scaffolding available — expect more independence. If the learner handled earlier topics at level 1-2 scaffolding, don't offer level 3+ hints as readily on later topics.
 - If they say "I get it" or "makes sense" without demonstrating understanding, probe anyway: "Great — can you walk me through it in your own words?"
 - Be encouraging but honest. "You're close, but there's a nuance you're missing" is better than false praise.
 - After a probe response, don't immediately fire the next probe. Acknowledge their answer, discuss it briefly, THEN move on.
+- **Metacognitive confidence check**: Occasionally (not every probe — roughly every 2nd-3rd probe), before giving feedback ask: *"Before I tell you how you did — how confident are you in that answer, 1-5?"* Track calibration by comparing self-rated confidence vs actual probe result. Store in learner-profile.json under the `calibration_history` field (see Step 8).
 - Record the mastery assessment per level.
 
 **IMMEDIATELY after probing, write:**
@@ -200,6 +251,16 @@ Probing happens *throughout* Step 4, not after it. The four levels still apply, 
 - **Mastered** — Strong at levels 1-3, at least partial on level 4. Move on.
 - **Reviewed** — Strong at 1-2, mixed on 3-4. Move on but flag for revisit.
 - **Stay** — Weak at level 1 or 2. Do not advance. Re-teach and re-probe.
+
+**Spaced retrieval prompt generation (after mastery or reviewed status):**
+
+When a topic reaches "mastered" or "reviewed" status, generate 3-5 conceptual retrieval prompts and append them to `review-schedule.json`. These are NOT flashcard trivia — target connections, implications, and reasoning:
+- *"Why does X work this way instead of Y?"*
+- *"What would break if Z were different?"*
+- *"How does X connect to [earlier topic]?"*
+- *"If you had to explain X to a junior engineer, what's the one thing you'd emphasize?"*
+
+Set each prompt's `next_review` to tomorrow, `interval_days` to 1, `status` to `"active"`, and empty `recall_history`.
 
 ### Step 5b: Adaptive Curriculum Revision
 
@@ -266,6 +327,40 @@ After each teaching block (not just at session end), update learner-profile.json
 ```
 
 Only update derived_preferences when you have enough signals (3+) to justify a change.
+
+**Calibration tracking:**
+
+When confidence checks are collected during probing (Step 5), store them in learner-profile.json under `calibration_history`:
+
+```json
+{
+  "calibration_history": [
+    {
+      "date": "2026-03-21",
+      "topic": "1.2",
+      "self_rated": 4,
+      "actual": "partial",
+      "pattern": "overconfident"
+    }
+  ]
+}
+```
+
+- `pattern` is one of: `"well_calibrated"`, `"overconfident"`, `"underconfident"`
+  - self_rated 4-5 + actual "weak"/"partial" → `"overconfident"`
+  - self_rated 1-2 + actual "strong" → `"underconfident"`
+  - otherwise → `"well_calibrated"`
+- After 5+ calibration data points, surface insights to the learner: *"I've noticed you tend to feel confident on [X-type] topics but the probes reveal gaps — worth paying attention to"*
+- Use calibration patterns to inform probing strategy: overconfident learners need more edge-case probes; underconfident learners need more encouragement and explicit acknowledgment of what they got right.
+
+### Step 8b: Learning Reflection (every 5 sessions)
+
+Check the session count in sessions.json. Every 5 sessions for a goal, run a brief metacognitive reflection:
+
+- Ask: *"Looking back over the last few sessions: What's the most important thing you've learned? What's still fuzzy? What would you explain differently now?"*
+- This builds metacognitive habits — the plan-monitor-evaluate cycle
+- Log the learner's response in sessions.json under a `"reflection"` field for that session entry
+- Use their self-assessment to inform curriculum revision (Step 5b) — topics they flag as "still fuzzy" should be prioritized for spaced retrieval prompts
 
 ## Session Summary
 
