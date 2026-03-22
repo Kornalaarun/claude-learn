@@ -54,11 +54,14 @@ bash install.sh
 
 The installer will:
 1. Install the `/learn` skill into your Claude Code skills directory — **that's it, you're ready to go**
-2. Optionally ask if you want the daily email (say no to skip — you can always set it up later by re-running the installer)
-3. If you opt in, schedule the daily email using the right mechanism for your OS:
-   - **macOS** — launchd
-   - **Linux** — cron
-   - **Windows** — Task Scheduler (via Git Bash)
+2. Optionally ask if you want the daily email (say no to skip)
+
+Want to add the daily email later? Just run:
+```bash
+bash setup-email.sh
+```
+
+The email scheduler uses the right mechanism for your OS: launchd (macOS), cron (Linux), or Task Scheduler (Windows).
 
 ### Prerequisites
 
