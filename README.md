@@ -53,9 +53,9 @@ bash install.sh
 ```
 
 The installer will:
-1. Copy the `/learn` skill into your Claude Code skills directory
-2. Optionally set up the daily email (prompts for Resend API key and email address)
-3. Schedule the daily email using the right mechanism for your OS:
+1. Install the `/learn` skill into your Claude Code skills directory — **that's it, you're ready to go**
+2. Optionally ask if you want the daily email (say no to skip — you can always set it up later by re-running the installer)
+3. If you opt in, schedule the daily email using the right mechanism for your OS:
    - **macOS** — launchd
    - **Linux** — cron
    - **Windows** — Task Scheduler (via Git Bash)
@@ -63,8 +63,7 @@ The installer will:
 ### Prerequisites
 
 - [Claude Code](https://claude.com/claude-code) CLI installed (`npm install -g @anthropic-ai/claude-code`)
-- For daily email: a free [Resend](https://resend.com) account and API key
-- Python 3 (for JSON escaping in the email script)
+- For daily email (optional): a free [Resend](https://resend.com) account and API key, Python 3
 
 ## Usage
 

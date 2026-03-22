@@ -73,7 +73,9 @@ read -p "Set up daily email? (y/N) " SETUP_EMAIL
 
 if [[ ! "$SETUP_EMAIL" =~ ^[Yy]$ ]]; then
   echo ""
-  info "Skipping email setup. You can run this installer again to set it up later."
+  info "Skipping email setup. You can run this installer again later to set it up."
+  echo ""
+  info "All done! Start learning with: ${BOLD}claude${NC} then type ${BOLD}/learn new${NC}"
   exit 0
 fi
 
